@@ -69,7 +69,7 @@ Annotations
 -----------
 
 Annotations for this work were generated with the free-software package called
-`flandmark <http://cmp.felk.cvut.cz/~uricamic/flandmark/>`. Please cite that
+`flandmark <http://cmp.felk.cvut.cz/~uricamic/flandmark/>`_. Please cite that
 work as well if you use the results of this package on your own publication.
 
 Installation

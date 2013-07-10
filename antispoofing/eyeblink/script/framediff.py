@@ -12,13 +12,14 @@ database and a baseline, Anjos & Marcel, IJCB'11.
 import os, sys
 import argparse
 
+from antispoofing.utils.db import *
+
 def main():
 
   import bob
   import numpy
-  from xbob.db.replay import Database
+  from .. import utils 
 
-  protocols = [k.name for k in Database().protocols()]
 
   basedir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
   INPUTDIR = os.path.join(basedir, 'database')
@@ -33,32 +34,22 @@ def main():
       default=ANNOTATIONS, nargs='?', help='Base directory containing the (flandmark) annotations to be treated by this procedure (defaults to "%(default)s")')
   parser.add_argument('outputdir', metavar='DIR', type=str, default=OUTPUTDIR,
       nargs='?', help='Base output directory for every file created by this procedure defaults to "%(default)s")')
-  parser.add_argument('-p', '--protocol', metavar='PROTOCOL', type=str,
-      default='grandtest', choices=protocols, dest="protocol",
-      help='The protocol type may be specified instead of the the id switch to subselect a smaller number of files to operate on (one of "%s"; defaults to "%%(default)s")' % '|'.join(sorted(protocols)))
   parser.add_argument('-M', '--maximum-displacement', metavar='FLOAT',
       type=float, dest="max_displacement", default=0.2, help="Maximum displacement (w.r.t. to the eye width) between eye-centers to consider the eye for calculating eye-differences (defaults to %(default)s)")
-
-  supports = ('fixed', 'hand', 'hand+fixed')
-
-  parser.add_argument('-s', '--support', metavar='SUPPORT', type=str,
-      default='hand+fixed', dest='support', choices=supports, help="If you would like to select a specific support to be used, use this option (one of '%s'; defaults to '%%(default)s')" % '|'.join(sorted(supports)))
 
   # The next option just returns the total number of cases we will be running
   # It can be used to set jman --array option.
   parser.add_argument('--grid-count', dest='grid_count', action='store_true',
       default=False, help=argparse.SUPPRESS)
 
+  Database.create_parser(parser, implements_any_of='video')
+
   args = parser.parse_args()
 
-  if args.support == 'hand+fixed': args.support = ('hand', 'fixed')
-
-  from .. import utils 
-
-  db = Database()
-
-  process = db.objects(protocol=args.protocol, support=args.support,
-      cls=('real', 'attack', 'enroll'))
+  #Loading the database data
+  database = args.cls(args)
+  realObjects, attackObjects = database.get_all_data()
+  process = realObjects + attackObjects
 
   if args.grid_count:
     print len(process)

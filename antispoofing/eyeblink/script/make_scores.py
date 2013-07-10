@@ -13,12 +13,11 @@ import bob
 import numpy
 import argparse
 from ..utils import score
+from antispoofing.utils.db import *
 
 def main():
   """Main method"""
   
-  from xbob.db.replay import Database
-  protocols = [k.name for k in Database().protocols()]
 
   basedir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
@@ -32,14 +31,8 @@ def main():
   parser.add_argument('outputdir', metavar='DIR', type=str, default=OUTPUTDIR, nargs='?', help='Base directory that will be used to save the results (defaults to "%(default)s").')
   parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
       default=False, help='Increases this script verbosity')
-  parser.add_argument('-p', '--protocol', metavar='PROTOCOL', type=str,
-      default='grandtest', choices=protocols, dest="protocol",
-      help="The protocol type may be specified to subselect a smaller number of files to operate on (one of '%s'; defaults to '%%(default)s')" % '|'.join(sorted(protocols)))
 
-  supports = ('fixed', 'hand', 'hand+fixed')
-
-  parser.add_argument('-s', '--support', metavar='SUPPORT', type=str,
-      default='hand+fixed', dest='support', choices=supports, help="If you would like to select a specific support to be used, use this option (one of '%s'; defaults to '%%(default)s')" % '|'.join(sorted(supports)))
+  Database.create_parser(parser, implements_any_of='video')
 
   args = parser.parse_args()
 
@@ -50,19 +43,19 @@ def main():
     if args.verbose: print "Creating output directory `%s'..." % args.outputdir
     bob.db.utils.makedirs_safe(args.outputdir)
 
-  if args.support == 'hand+fixed': args.support = ('hand', 'fixed')
 
-  db = Database()
+  #Loading the database data
+  database = args.cls(args)
+  realObjects, attackObjects = database.get_all_data()
+  process = realObjects + attackObjects
 
-  process = db.objects(protocol=args.protocol, support=args.support,
-      cls=('real', 'attack', 'enroll'))
 
   counter = 0
   for obj in process:
     counter += 1
      
     if args.verbose: 
-      sys.stdout.write("Processing file %s [%d/%d] " % (obj.path, counter, len(process)))
+      sys.stdout.write("Processing file %s [%d/%d] " % (obj.videofile, counter, len(process)))
 
     input = obj.load(args.inputdir, '.hdf5')
 

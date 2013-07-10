@@ -30,7 +30,10 @@ setup(
     install_requires=[
       "setuptools",
       "bob >= 1.1.0",
-      "xbob.db.replay",
+      "xbob.db.replay", # Replay-Attack database
+      "xbob.db.casia_fasd", #CASIA database
+      "antispoofing.utils",  #Utils Package
+      "xbob.flandmark" #Landmark detector
     ],
 
     entry_points={
@@ -41,6 +44,7 @@ setup(
         'count_blinks.py = antispoofing.eyeblink.script.count_blinks:main',
         'merge_scores.py = antispoofing.eyeblink.script.merge_scores:main',
         'make_movie.py = antispoofing.eyeblink.script.make_movie:main',
+        'localize_eyes.py = antispoofing.eyeblink.script.localize_eyes:main',
         ],
 
       },

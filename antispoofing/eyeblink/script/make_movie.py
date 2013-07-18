@@ -73,7 +73,7 @@ def main():
   db.assert_validity()
   splitted = args.path.split(os.sep)
   k = [splitted.index(k) for k in splitted if k in \
-      ('train', 'test', 'devel', 'enroll')][0]
+      ('train', 'test', 'devel')][0]
   splitted[-1] = os.path.splitext(splitted[-1])[0]
   path_query = os.sep.join(splitted[k:])
   obj = db.session.query(File).filter(File.path == path_query).one()

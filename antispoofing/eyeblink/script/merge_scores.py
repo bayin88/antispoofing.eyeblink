@@ -52,7 +52,17 @@ def main():
       print "Processing '%s' group..." % group
   
     out = open(os.path.join(args.outputdir, '%s-5col.txt' % group), 'wt')
-    reals, attacks = db.get_all_data()
+
+    if(group=='train'):
+      reals, attacks = db.get_train_data()
+    elif(group=='devel'):
+      reals, attacks = db.get_devel_data()
+    else:
+      reals, attacks = db.get_test_data()
+
+    #reals, attacks = db.get_all_data()
+
+
     #TODO: 
     #reals = db.objects(protocol=args.protocol, support=args.support,
         #groups=(group,), cls=('real',))
